@@ -3,7 +3,7 @@
 	"displayName": "Clint",
 	"description": "C lint",
 	"icon": "images/icon.png",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "fish9903",
 	"repository": {
 		"type": "git",
