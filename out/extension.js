@@ -108,7 +108,8 @@ function activate(context) {
     function checkMacro(decorate) {
         let regEx = /#define\s+[_a-zA-Z0-9]+/g;
         let hoverMessage = '';
-        // 1. macro 이름 얻기
+        // 1. macro 이름 얻기(updateDecorations 메소드의 temp parameter에 1을 넣어 macro이름을 얻는 동작이라고 전달)
+        // temp parameter가 0이면 일반적인 동작(vscode에 message 띄우기)
         updateDecorations(regEx, hoverMessage, decorate, 1);
         // 2. macro에 대해 주의할 사항 띄우기
         sideEffectOnMacro(decorate);
@@ -127,14 +128,16 @@ function activate(context) {
         let match;
         // 주어진 regular expression에 매칭되는 문자열이 있는지 코드 시작(startPos)부터 끝(endPos)까지 검사
         while ((match = regEx.exec(text))) {
+            // macro 이름 얻어오는 동작일 때 macroName 변수에 macro 이름 저장
             if (temp == 1) {
                 macroName = match[0].replace("#define", "").trim();
                 console.log(macroName);
             }
-            const startPos = activeEditor.document.positionAt(match.index);
-            const endPos = activeEditor.document.positionAt(match.index + match[0].length);
-            // 스캔 범위(range)와 마우스를 올렸을때(hover) 나오는 message 설정
+            // macro 이름을 얻는 동작이아닐 때
             if (temp != 1) {
+                const startPos = activeEditor.document.positionAt(match.index);
+                const endPos = activeEditor.document.positionAt(match.index + match[0].length);
+                // 스캔 범위(range)와 마우스를 올렸을때(hover) 나오는 message 설정
                 const decoration = {
                     'range': new vscode.Range(startPos, endPos),
                     'hoverMessage': hoverMessage,
