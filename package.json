@@ -3,8 +3,12 @@
 	"displayName": "Clint",
 	"description": "C lint",
 	"icon": "images/icon.png",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "fish9903",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/fish9903/custom-Clint.git"
+	  },
 	"engines": {
 		"vscode": "^1.67.0"
 	},
