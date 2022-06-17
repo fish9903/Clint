@@ -38,3 +38,8 @@ a = SQR(a + 1); -> a can be unintended value
 
 # Coding Standards reference
 https://wiki.sei.cmu.edu/confluence/display/seccode/SEI+CERT+Coding+Standards
+
+# Visual Code extension reference
+https://code.visualstudio.com/api/working-with-extensions/publishing-extension
+
+https://github.com/microsoft/vscode-extension-samples/tree/main/decorator-sample
