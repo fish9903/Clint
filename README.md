@@ -26,6 +26,9 @@
 #define SQR(x) x*x;
 ...
 a = SQR(a + 1); -> a can be unintended value
+
+// a = a + 1;
+// a = SQR(a); -> recommended
 ``` 
 
 ![macro1](/images/macro_example1.png)
