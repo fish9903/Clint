@@ -21,6 +21,9 @@ export function activate(context: vscode.ExtensionContext) {
 	// 현재 사용중인 text editor
 	let activeEditor = vscode.window.activeTextEditor;
 
+	// macro 이름 저장(macro side effect 검사 위해)
+	let macroName: any;
+
 	// plugin 실행했을 때 실행되는 메소드
 	let disposable = vscode.commands.registerCommand('extension.CLint', () => {
 		// The code you place here will be executed every time your command is executed
@@ -43,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 		
 		// 유저가 설정한 정규 표현식에 대항하는 코드가 있는지 검사
 		unsignedIntegerWrap(decorate);
-		signedIntegerOverflow(decorate);
+		//signedIntegerOverflow(decorate);
 
 		assignmentInIfstatement(decorate);
 		assignmentInWhilestatement(decorate);
@@ -51,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 		sideEffectOnIfstatement(decorate);
 		sideEffectOnWhilestatement(decorate);
 		sideEffectOnSizeof(decorate);
-
+		checkMacro(decorate);
 		// vscode에 updateDecorations()에서 설정한 decorate 출력
 		activeEditor.setDecorations(decorationType, decorate);
 	}
@@ -82,18 +85,8 @@ export function activate(context: vscode.ExtensionContext) {
 	// CERT INT30-C
 	// Priority P9, Level L2
 	function unsignedIntegerWrap(decorate: vscode.DecorationOptions[]) {
-		let regEx = /(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*[-+*]=|(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*(<<)=|(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*=\s*[_a-zA-Z0-9]\s*[-+*]+/g;
+		let regEx = /(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*([-+*]|(<<))=|(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*=\s*[_a-zA-Z0-9]+\s*([-+*]+|(<<))/g;
 		let hoverMessage = '(INT30-C) Ensure that unsigned integer operations do not wrap. You should check';
-
-		updateDecorations(regEx, hoverMessage, decorate);
-	}
-
-	// check signed integer do not result in overflow
-	// CERT INT32-C
-	// Priority P9, Level L2
-	function signedIntegerOverflow(decorate: vscode.DecorationOptions[]) {
-		let regEx = /(int)\s+[_a-zA-Z0-9]+\s*[-+*]=|(int)\s+[_a-zA-Z0-9]+\s*(<<)=|(int)\s+[_a-zA-Z0-9]+\s*=\s*[_a-zA-Z0-9]\s*[-+*]+|(signed)\s+(int)\s+[_a-zA-Z0-9]+\s*[-+*]=|(signed)\s+(int)\s+[_a-zA-Z0-9]+\s*(<<)=|(signed)\s+(int)\s+[_a-zA-Z0-9]+\s*=\s*[_a-zA-Z0-9]\s*[-+*]+/g;
-		let hoverMessage = '(INT32-C) Ensure that signed integer operations do not result in overflow. You should check';
 
 		updateDecorations(regEx, hoverMessage, decorate);
 	}
@@ -104,14 +97,14 @@ export function activate(context: vscode.ExtensionContext) {
 	// ||, && operator
 	function sideEffectOnIfstatement(decorate: vscode.DecorationOptions[]) {
 		// if statement
-		let regEx = /if ?\(([^\r\n])*(\|\|)([^\r\n]*)\)|if ?\(([^\r\n])*(\&\&)([^\r\n]*)\)/g;
+		let regEx = /if ?\(([^\r\n])*((\|\|)|(\&\&))([^\r\n]*)\)/g;
 		let hoverMessage = '(EXP30-C)(shortcut evaluation) If Right-hand side of \'||\', \'&&\' has side effect, it may not be executed';
 
 		updateDecorations(regEx, hoverMessage, decorate);
 	}
 	function sideEffectOnWhilestatement(decorate: vscode.DecorationOptions[]) {
 		// while statement
-		let regEx = /while ?\(([^\r\n])*(\|\|)([^\r\n]*)\)|while ?\(([^\r\n])*(\&\&)([^\r\n]*)\)/g;
+		let regEx = /while ?\(([^\r\n])*((\|\|)|(\&\&))([^\r\n]*)\)/g;
 		let hoverMessage = '(EXP30-C)(shortcut evaluation) If Right-hand side of \'||\', \'&&\' has side effect, it may not be executed';
 
 		updateDecorations(regEx, hoverMessage, decorate);
@@ -127,9 +120,34 @@ export function activate(context: vscode.ExtensionContext) {
 		updateDecorations(regEx, hoverMessage, decorate);
 	}
 
+	// check side effect on macro
+	// CERT PRI31-C
+	// Priority P3, Level L3
+	
+	// macro의 경우에는 사용자가 이름을 정하기 때문에 정해진 이름이 없다. 
+	// 따라서 macro 정의부분에서 macro 이름을 얻어오고, 이후 코드에서 사용되는 같은 이름의 macro에 대해 검사
+
+	function checkMacro(decorate: vscode.DecorationOptions[]) {
+		let regEx = /#define\s+[_a-zA-Z0-9]+/g;
+		let hoverMessage = '';
+		
+		// 1. macro 이름 얻기
+		updateDecorations(regEx, hoverMessage, decorate, 1);
+
+		// 2. macro에 대해 주의할 사항 띄우기
+		sideEffectOnMacro(decorate);
+	}
+
+	function sideEffectOnMacro(decorate: vscode.DecorationOptions[]) {
+		let regEx = new RegExp(`${macroName}`, 'g');
+		let hoverMessage = '(PRI31-C) Avoid side effects in arguments to unsafe macros';
+
+		updateDecorations(regEx, hoverMessage, decorate);
+	}
+
 
 	// vscode에 표시할 메시지(decorate) 설정
-	function updateDecorations(regEx = /^$/, hoverMessage = '', decorate: vscode.DecorationOptions[]) {
+	function updateDecorations(regEx: RegExp, hoverMessage: string, decorate: vscode.DecorationOptions[], temp = 0) {
 		if (!activeEditor) {
 			return;
 		}
@@ -139,15 +157,22 @@ export function activate(context: vscode.ExtensionContext) {
 
 		// 주어진 regular expression에 매칭되는 문자열이 있는지 코드 시작(startPos)부터 끝(endPos)까지 검사
 		while ((match = regEx.exec(text))) {
+			if(temp == 1) {			
+				macroName = match[0].replace("#define", "").trim();
+				console.log(macroName);
+			}
+				
 			const startPos = activeEditor.document.positionAt(match.index);
 			const endPos = activeEditor.document.positionAt(match.index + match[0].length);
 
 			// 스캔 범위(range)와 마우스를 올렸을때(hover) 나오는 message 설정
-			const decoration = {
-				'range': new vscode.Range(startPos, endPos),
-				'hoverMessage': hoverMessage,
-			};
-			decorate.push(decoration);
+			if(temp != 1) {
+				const decoration = {
+					'range': new vscode.Range(startPos, endPos),
+					'hoverMessage': hoverMessage,
+				};
+				decorate.push(decoration);
+			}
 		}
 	}
 }
