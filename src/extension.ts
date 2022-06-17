@@ -42,12 +42,11 @@ export function activate(context: vscode.ExtensionContext) {
 		let decorate: vscode.DecorationOptions[] = [];
 		
 		// 유저가 설정한 정규 표현식에 대항하는 코드가 있는지 검사
-		
-		assignmentInIfstatement(decorate);
-		assignmentInWhilestatement(decorate);
-
 		unsignedIntegerWrap(decorate);
 		signedIntegerOverflow(decorate);
+
+		assignmentInIfstatement(decorate);
+		assignmentInWhilestatement(decorate);
 
 		sideEffectOnIfstatement(decorate);
 		sideEffectOnWhilestatement(decorate);
