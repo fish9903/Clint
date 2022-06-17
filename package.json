@@ -1,7 +1,7 @@
 {
 	"name": "clint",
 	"displayName": "Clint",
-	"description": "C, C++ lint",
+	"description": "C lint",
 	"icon": "images/icon.png",
 	"version": "0.0.1",
 	"publisher": "fish9903",
