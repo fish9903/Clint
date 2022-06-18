@@ -40,6 +40,6 @@ a = SQR(a + 1); -> a can be unintended value
 https://wiki.sei.cmu.edu/confluence/display/seccode/SEI+CERT+Coding+Standards
 
 # Visual Code extension reference
-[https://code.visualstudio.com/api/working-with-extensions/publishing-extension](https://code.visualstudio.com/api/references/vscode-api)
+https://code.visualstudio.com/api/references/vscode-api
 
-[https://github.com/microsoft/vscode-extension-samples/tree/main/decorator-sample](https://github.com/microsoft/vscode-extension-samples/tree/main/decorator-sample)
+https://github.com/microsoft/vscode-extension-samples/tree/main/decorator-sample
