@@ -9,7 +9,7 @@ int main() {
 	int size = sizeof(a + 1);
 
 	unsigned int c2 = 2;
-	unsigned int c = 1 + 2;
+	unsigned int c = 1 + b;
 	
  	int m = SQR(a + 1);
 
