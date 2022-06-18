@@ -36,7 +36,7 @@ a = SQR(a + 1); -> a can be unintended value
 <br />
 <br />
 
-# Coding Standards reference
+# Coding Standards reference 
 https://wiki.sei.cmu.edu/confluence/display/seccode/SEI+CERT+Coding+Standards
 
 # Visual Code extension reference

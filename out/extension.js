@@ -40,9 +40,9 @@ function activate(context) {
         let decorate = [];
         // 유저가 설정한 정규 표현식에 대항하는 코드가 있는지 검사
         unsignedIntegerWrap(decorate);
-        //signedIntegerOverflow(decorate);
         assignmentInIfstatement(decorate);
         assignmentInWhilestatement(decorate);
+        assignmentInFortatement(decorate);
         sideEffectOnIfstatement(decorate);
         sideEffectOnWhilestatement(decorate);
         sideEffectOnSizeof(decorate);
@@ -53,7 +53,7 @@ function activate(context) {
     // L1 = High severity
     // L2 = Medium severity
     // L3 = Low severity
-    // check assignments in statements
+    // check assignments in selection statements
     // CERT EXP45-C - Do not perform assignments in selection statements
     // Priority P6, Level L2
     // if statement
@@ -68,15 +68,21 @@ function activate(context) {
         let hoverMessage = '(EXP45-C)Recommend to change \'=\' to \'==\'';
         updateDecorations(regEx, hoverMessage, decorate);
     }
+    // for statement
+    function assignmentInFortatement(decorate) {
+        let regEx = /for\([^;]+;\s+[_a-zA-Z0-9]\s+=\s*[_a-zA-Z0-9]*;/g;
+        let hoverMessage = '(EXP45-C)Recommend to change \'=\' to \'==\'';
+        updateDecorations(regEx, hoverMessage, decorate);
+    }
     // check unsigned integer wrap(unsigned integer에는 overflow가 없음)
     // CERT INT30-C
     // Priority P9, Level L2
     function unsignedIntegerWrap(decorate) {
         let regEx = /(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*([-+*]|(<<))=|(unsigned)\s+(int)\s+[_a-zA-Z0-9]+\s*=\s*[_a-zA-Z0-9]+\s*([-+*]+|(<<))/g;
-        let hoverMessage = '(INT30-C) Ensure that unsigned integer operations do not wrap. You should check';
+        let hoverMessage = '(INT30-C) Ensure that unsigned integer operations do not wrap. You can check by using limits.h header and UINT_MAX';
         updateDecorations(regEx, hoverMessage, decorate);
     }
-    // check side effect on if statement(shortcut evaluation) -> while문도 작성필요?
+    // Do not depend on the order of evaluation for side effects (shortcut evaluation)
     // CERT EXP30-C
     // Priority P8, Level L2
     // ||, && operator
@@ -92,7 +98,7 @@ function activate(context) {
         let hoverMessage = '(EXP30-C)(shortcut evaluation) If Right-hand side of \'||\', \'&&\' has side effect, it may not be executed';
         updateDecorations(regEx, hoverMessage, decorate);
     }
-    // check side effect on sizeof()
+    // Do not rely on side effects in operands to sizeof()
     // CERT EXP44-C
     // Priority P3, Level L3
     function sideEffectOnSizeof(decorate) {
@@ -100,8 +106,8 @@ function activate(context) {
         let hoverMessage = '(EXP44-C) Do not rely on side effects in operands to sizeof';
         updateDecorations(regEx, hoverMessage, decorate);
     }
-    // check side effect on macro
-    // CERT PRI31-C
+    // void side effects in arguments to unsafe macros
+    // CERT PRE31-C
     // Priority P3, Level L3
     // macro의 경우에는 사용자가 이름을 정하기 때문에 정해진 이름이 없다. 
     // 따라서 macro 정의부분에서 macro 이름을 얻어오고, 이후 코드에서 사용되는 같은 이름의 macro에 대해 검사
