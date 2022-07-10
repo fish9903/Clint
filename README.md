@@ -5,6 +5,8 @@
 
 □ 특정 언어에서 권장하는 코딩 스타일을 따르지 않고 코드를 작성하면 오류가 발생할 수 있고, 오류가 발생하지 않아도 프로그램에 좋지 않은 영향을 줄 수 있다. 따라서 적절한 코딩 스타일을 따르는 것이 필요하다.
 
+□ 권장되는 C언어 코딩 스타일은 CERT Coding Standard를 참조(아래 링크)
+
 ## Examples
 1. Consider side effects
 - `if (a++ || b--)` ->  right-hand side of '||' may not be executed (shortcut evaluation)
